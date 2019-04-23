@@ -595,6 +595,11 @@ if [ -n "$SND_DIR" ]; then
     done
 fi
 
+if [ -f $BASEDIR/power_on.wav ]; then
+   echo "Update power_on sound file"
+   install -m 0644 $BASEDIR/power_on.wav $IMG_DIR/opt/rockrobo/resources/sounds/power_on.wav
+fi
+
 while [ $(umount $IMG_DIR; echo $?) -ne 0 ]; do
     echo "waiting for unmount..."
     sleep 2
