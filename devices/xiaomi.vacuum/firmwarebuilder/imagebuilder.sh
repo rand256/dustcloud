@@ -440,6 +440,18 @@ if [ $DISABLE_LOGS -eq 1 ]; then
 
     # Comment $IncludeConfig
     sed -Ei 's/^(\$IncludeConfig)/#&/' $IMG_DIR/etc/rsyslog.conf
+
+    # make rrlogd write logs into RAM instead of FLASH
+    sed -i '/ip6tables -P OUTPUT DROP/a\ \n    mountpoint -q \$RR_UDATA\/rockrobo\/rrlog || mount -t tmpfs -o size=5m tmpfs \$RR_UDATA\/rockrobo\/rrlog' $IMG_DIR/opt/rockrobo/watchdog/rrwatchdoge.conf
+
+    # and clean it regularly, it'll overflow otherwise
+    if [ -f $BASEDIR/logclean.sh ]; then
+        echo "Install logclean script"
+        install -m 0755 $BASEDIR/logclean.sh $IMG_DIR/opt/rockrobo/rrlog/logclean.sh
+        echo "*/5 * * * * root /opt/rockrobo/rrlog/logclean.sh /mnt/data/rockrobo/rrlog >> /mnt/data/rockrobo/rrlog/lclean.log 2>&1" >> $IMG_DIR/etc/crontab
+   else
+        echo "warning: logclean script is missing!"
+   fi
 fi
 
 if [ $PATCH_RRLOGD -eq 1 ]; then
