@@ -484,7 +484,7 @@ if [ $RESTORE_RUBY -eq 1 ]; then
     #cp ./etc/subuid- ./etc/subuid
     #cp ./etc/subgid- ./etc/subgid
     #if this fails, then the password is rockrobo for user ruby
-    echo "ruby:$USER_PASSWORD" | chpasswd -c SHA512 -R $PWD
+    sed -i -E 's,(ruby:)([^:]+),\1'"$(openssl passwd -6 -salt PtJ6POSZ -- $USER_PASSWORD)"',' $IMG_DIR/etc/shadow
     echo $USER_PASSWORD > "output/${FIRMWARE_FILENAME}.password"
     ###
 fi
