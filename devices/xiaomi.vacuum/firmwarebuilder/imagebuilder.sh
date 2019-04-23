@@ -427,6 +427,9 @@ if [ $DISABLE_LOGS -eq 1 ]; then
     sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\10/' $IMG_DIR/opt/rockrobo/rrlog/rrlog.conf
     sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\10/' $IMG_DIR/opt/rockrobo/rrlog/rrlogmt.conf
 
+    # Reduce logging of miio_client
+    sed -i 's/-l 2/-l 0/' $IMG_DIR/opt/rockrobo/watchdog/ProcessList.conf
+
     # Let the script cleanup logs
     sed -i 's/nice.*//' $IMG_DIR/opt/rockrobo/rrlog/tar_extra_file.sh
 
@@ -510,6 +513,9 @@ if [ $ENABLE_DUMMYCLOUD -eq 1 ]; then
     # UPLOAD_METHOD   0:NO_UPLOAD    1:FTP    2:FDS
     sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\10/' $IMG_DIR/opt/rockrobo/rrlog/rrlog.conf
     sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\10/' $IMG_DIR/opt/rockrobo/rrlog/rrlogmt.conf
+
+    # Reduce logging of miio_client
+    sed -i 's/-l 2/-l 0/' $IMG_DIR/opt/rockrobo/watchdog/ProcessList.conf
 
     # Let the script cleanup logs
     sed -i 's/nice.*//' $IMG_DIR/opt/rockrobo/rrlog/tar_extra_file.sh
