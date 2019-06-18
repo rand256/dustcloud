@@ -174,6 +174,7 @@ while [ -n "$1" ]; do
             VALETUDO_PATH="$ARG"
             if [ -r "$VALETUDO_PATH/valetudo" ]; then
                 ENABLE_VALETUDO=1
+                DISABLE_LOGS=1
             else
                 echo "The valetudo binary hasn't been found in $VALETUDO_PATH"
                 echo "Please download it from https://github.com/Hypfer/Valetudo"
@@ -406,7 +407,7 @@ if [ $UNPROVISIONED -eq 1 ]; then
         mkdir $IMG_DIR/opt/unprovisioned
         install -m 0755 $BASEDIR/unprovisioned/start_wifi.sh $IMG_DIR/opt/unprovisioned
 
-        sed -i 's/exit 0//' $IMG_DIR/etc/rc.local
+        sed -i 's/^exit 0//' $IMG_DIR/etc/rc.local
         cat $BASEDIR/unprovisioned/rc.local >> $IMG_DIR/etc/rc.local
         echo "exit 0" >> $IMG_DIR/etc/rc.local
 
@@ -522,7 +523,7 @@ if [ $ENABLE_DUMMYCLOUD -eq 1 ]; then
 
     cat $DUMMYCLOUD_PATH/doc/etc_hosts-snippet.txt >> $IMG_DIR/etc/hosts
 
-    sed -i 's/exit 0//' $IMG_DIR/etc/rc.local
+    sed -i 's/^exit 0//' $IMG_DIR/etc/rc.local
     cat $DUMMYCLOUD_PATH/doc/etc_rc.local-snippet.txt >> $IMG_DIR/etc/rc.local
     echo >> $IMG_DIR/etc/rc.local
     echo "exit 0" >> $IMG_DIR/etc/rc.local
@@ -553,31 +554,10 @@ if [ $ENABLE_VALETUDO -eq 1 ]; then
 
     cat $VALETUDO_PATH/deployment/etc/hosts >> $IMG_DIR/etc/hosts
 
-    sed -i 's/exit 0//' $IMG_DIR/etc/rc.local
+    sed -i 's/^exit 0//' $IMG_DIR/etc/rc.local
     cat $VALETUDO_PATH/deployment/etc/rc.local >> $IMG_DIR/etc/rc.local
     echo >> $IMG_DIR/etc/rc.local
     echo "exit 0" >> $IMG_DIR/etc/rc.local
-
-    # UPLOAD_METHOD=2
-    sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\12/' $IMG_DIR/opt/rockrobo/rrlog/rrlog.conf
-    sed -i -E 's/(UPLOAD_METHOD=)([0-9]+)/\12/' $IMG_DIR/opt/rockrobo/rrlog/rrlogmt.conf
-
-    # Set LOG_LEVEL=3
-    sed -i -E 's/(LOG_LEVEL=)([0-9]+)/\13/' $IMG_DIR/opt/rockrobo/rrlog/rrlog.conf
-    sed -i -E 's/(LOG_LEVEL=)([0-9]+)/\13/' $IMG_DIR/opt/rockrobo/rrlog/rrlogmt.conf
-
-    # Reduce logging of miio_client
-    sed -i 's/-l 2/-l 0/' $IMG_DIR/opt/rockrobo/watchdog/ProcessList.conf
-
-    # Let the script cleanup logs
-    sed -i 's/nice.*//' $IMG_DIR/opt/rockrobo/rrlog/tar_extra_file.sh
-
-    # Disable collecting device info to /dev/shm/misc.log
-    sed -i '/^\#!\/bin\/bash$/a exit 0' $IMG_DIR/opt/rockrobo/rrlog/misc.sh
-
-    # Disable logging of 'top'
-    sed -i '/^\#!\/bin\/bash$/a exit 0' $IMG_DIR/opt/rockrobo/rrlog/toprotation.sh
-    sed -i '/^\#!\/bin\/bash$/a exit 0' $IMG_DIR/opt/rockrobo/rrlog/topstop.sh
 fi
 
 if [ $FUSE -eq 1 ]; then
