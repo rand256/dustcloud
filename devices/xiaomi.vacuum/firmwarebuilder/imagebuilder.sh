@@ -56,6 +56,7 @@ Options:
                              --unprovisioned wpa2psk
                              --ssid YOUR_SSID
                              --psk YOUR_WIRELESS_PASSWORD
+  --fusesound                Install fuse and attempt to mount /mnt/data/rockrobo/sounds_multi
   -h, --help                 Prints this message
 
 Each parameter that takes a file as an argument accepts path in any form
@@ -101,6 +102,7 @@ DISABLE_LOGS=0
 ENABLE_DUMMYCLOUD=0
 ENABLE_VALETUDO=0
 PATCH_RRLOGD=0
+FUSE=0
 
 while [ -n "$1" ]; do
     PARAM="$1"
@@ -195,6 +197,9 @@ while [ -n "$1" ]; do
         *-psk)
             PSK="$ARG"
             shift
+            ;;
+        *-fusesound)
+            FUSE=1
             ;;
         ----noarg)
             echo "$ARG does not take an argument"
@@ -573,6 +578,21 @@ if [ $ENABLE_VALETUDO -eq 1 ]; then
     # Disable logging of 'top'
     sed -i '/^\#!\/bin\/bash$/a exit 0' $IMG_DIR/opt/rockrobo/rrlog/toprotation.sh
     sed -i '/^\#!\/bin\/bash$/a exit 0' $IMG_DIR/opt/rockrobo/rrlog/topstop.sh
+fi
+
+if [ $FUSE -eq 1 ]; then
+    echo "Installing fuse components"
+
+    install -d -m 0755 $IMG_DIR/root/fuse
+    install -m 0644 $BASEDIR/fuse/libfuse.deb $IMG_DIR/root/fuse/libfuse.deb 
+    install -m 0644 $BASEDIR/fuse/fuse.deb $IMG_DIR/root/fuse/fuse.deb
+    install -m 0755 $BASEDIR/fuse/install.sh $IMG_DIR/root/fuse/install.sh
+    install -m 0755 $BASEDIR/fuse/bbfs $IMG_DIR/usr/local/bin/bbfs
+
+    sed -i 's/^exit 0//' $IMG_DIR/etc/rc.local
+    echo "/root/fuse/install.sh" >> $IMG_DIR/etc/rc.local
+    echo >> $IMG_DIR/etc/rc.local
+    echo "exit 0" >> $IMG_DIR/etc/rc.local
 fi
 
 if [ -n "$NTPSERVER" ]; then
